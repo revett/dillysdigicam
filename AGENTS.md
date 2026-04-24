@@ -7,6 +7,8 @@
 1. Make everything stupidly fast for end users
 1. Always leave the codebase in a better state than you found it, including documentation!
 1. Ensure to lint/format code after making changes
+1. Only the team makes changes to `AGENTS.md`, but you can suggest changes in a conversation
+1. Always update `README.md` and `src/llms.txt` as you make changes, keep them updated!
 
 ## Choices
 

@@ -31,6 +31,31 @@ function triggerDownload(url, filename) {
   a.click();
 }
 
+let toastId = 0;
+
+Alpine.data("toasts", () => ({
+  items: [],
+
+  show(message, duration = 3000) {
+    const id = ++toastId;
+    const toast = { id, message, visible: true };
+    this.items.push(toast);
+    setTimeout(() => {
+      toast.visible = false;
+      setTimeout(() => {
+        this.items = this.items.filter((t) => t.id !== id);
+      }, 200);
+    }, duration);
+  },
+}));
+
+function showToast(message) {
+  const el = document.getElementById("toasts");
+  if (el?._x_dataStack?.[0]) {
+    el._x_dataStack[0].show(message);
+  }
+}
+
 Alpine.data("app", () => ({
   photos: [],
   results: [],
@@ -53,6 +78,13 @@ Alpine.data("app", () => ({
   async handleFiles(files) {
     const imageFiles = Array.from(files).filter(isImageFile);
     if (imageFiles.length === 0) return;
+
+    const heicCount = imageFiles.filter(isHeic).length;
+    if (heicCount > 0) {
+      showToast(
+        `Converting ${heicCount} HEIC file${heicCount > 1 ? "s" : ""}...`,
+      );
+    }
 
     this.view = "gallery";
 
@@ -124,6 +156,7 @@ Alpine.data("app", () => ({
 
     if (this.view === "processing") {
       this.view = "results";
+      showToast(`${this.results.length} photos ready to download`);
     }
   },
 
@@ -134,11 +167,13 @@ Alpine.data("app", () => ({
     this.results = [];
     this.processedCount = 0;
     this.view = "gallery";
+    showToast("Processing cancelled");
   },
 
   downloadOne(index) {
     const result = this.results[index];
     triggerDownload(result.url, result.name);
+    showToast(`Downloaded ${result.name}`);
   },
 
   async downloadAll() {
@@ -150,8 +185,18 @@ Alpine.data("app", () => ({
     const zipped = zipSync(files);
     const blob = new Blob([zipped], { type: "application/zip" });
     const url = URL.createObjectURL(blob);
-    triggerDownload(url, "dillys-digicam.zip");
+    const now = new Date();
+    const ts = [
+      now.getFullYear(),
+      String(now.getMonth() + 1).padStart(2, "0"),
+      String(now.getDate()).padStart(2, "0"),
+      String(now.getHours()).padStart(2, "0"),
+      String(now.getMinutes()).padStart(2, "0"),
+    ].join("");
+    const zipName = `dillys-digicam-${ts}.zip`;
+    triggerDownload(url, zipName);
     URL.revokeObjectURL(url);
+    showToast(`Downloaded ${zipName}`);
   },
 
   onDrop(e) {
