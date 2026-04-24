@@ -71,12 +71,31 @@
       <!-- Processing -->
       <div x-show="view === 'processing'" class="mt-16 text-center">
         <div class="flex flex-col items-center gap-6">
-          <p class="text-neutral-500" x-text="`${selectedCount} of ${photos.length} photos selected`"></p>
+          <p class="text-neutral-500" x-text="`Processing ${processedCount} of ${selectedCount}...`"></p>
           <div class="w-8 h-8 border-3 border-neutral-700 border-t-white rounded-full animate-spin"></div>
-          <p class="text-neutral-600 text-sm">Processing...</p>
-          <button type="button" x-on:click="view = 'gallery'" class="bg-neutral-800 text-neutral-300 text-sm px-4 py-2 rounded-lg hover:bg-neutral-700 transition-colors cursor-pointer mt-2">Cancel</button>
+          <button type="button" x-on:click="cancelProcessing" class="bg-neutral-800 text-neutral-300 text-sm px-4 py-2 rounded-lg hover:bg-neutral-700 transition-colors cursor-pointer">Cancel</button>
         </div>
       </div>
+
+      <!-- Results -->
+      <template x-if="view === 'results'">
+        <div>
+          <div class="flex items-center gap-4 mt-6">
+            <span class="text-neutral-500 text-sm flex-1" x-text="`${results.length} photos processed`"></span>
+            <button type="button" x-on:click="reset" class="bg-neutral-800 text-neutral-300 text-sm px-4 py-2 rounded-lg hover:bg-neutral-700 transition-colors cursor-pointer">Start over</button>
+            <button type="button" x-on:click="downloadAll" class="bg-white text-neutral-950 text-sm font-semibold px-4 py-2 rounded-lg hover:bg-neutral-200 transition-colors cursor-pointer">Download all</button>
+          </div>
+
+          <div class="grid grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-4 mt-6">
+            <template x-for="(result, index) in results" :key="index">
+              <div class="relative aspect-square rounded-lg overflow-hidden group">
+                <img :src="result.url" alt="" class="w-full h-full object-cover block">
+                <button type="button" x-on:click="downloadOne(index)" class="absolute bottom-2 right-2 bg-white/90 text-neutral-950 text-xs font-medium px-3 py-1.5 rounded-md opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">Download</button>
+              </div>
+            </template>
+          </div>
+        </div>
+      </template>
     </main>
   </div>
 

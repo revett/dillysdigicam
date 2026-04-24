@@ -17,3 +17,8 @@
 - We use GitHub Actions for CI
 - We use GitHub Pages for deployment
 - We use AlpineJS for our framework
+
+## Style
+
+See photos in the `style/` directory for examples of the photo aesthetic that we are aiming to
+replicate.
