@@ -35,6 +35,10 @@ Alpine.data("app", () => ({
     return this.photos.length > 0 && this.selectedCount === this.photos.length;
   },
 
+  get anyLoading() {
+    return this.photos.some((p) => p.loading);
+  },
+
   async handleFiles(files) {
     const imageFiles = Array.from(files).filter(isImageFile);
     if (imageFiles.length === 0) return;

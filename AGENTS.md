@@ -6,6 +6,7 @@
 1. Simple always wins
 1. Make everything stupidly fast for end users
 1. Always leave the codebase in a better state than you found it, including documentation!
+1. Ensure to lint/format code after making changes
 
 ## Choices
 
