@@ -4,8 +4,27 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dilly's Digicam</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📷</text></svg>">
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <h1>Dilly's Digicam</h1>
+  <header>
+    <h1>Dilly's Digicam</h1>
+    <p class="subtitle">Drop your photos, pick your favourites, and give them that 2000s digicam look.</p>
+  </header>
+
+  <main>
+    <div id="dropzone" class="dropzone">
+      <div class="dropzone-content">
+        <span class="dropzone-icon">📷</span>
+        <p class="dropzone-text">Drop photos here or click to upload</p>
+      </div>
+      <input type="file" id="file-input" accept="image/*" multiple>
+    </div>
+
+    <div id="gallery" class="gallery"></div>
+  </main>
+
+  <script src="app.js"></script>
 </body>
 </html>
