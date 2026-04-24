@@ -3,9 +3,12 @@
   "private": true,
   "scripts": {
     "dev": "parcel src/index.html",
-    "build": "parcel build src/index.html --dist-dir dist --public-url ./"
+    "build": "parcel build src/index.html --dist-dir dist --public-url ./",
+    "lint": "biome check",
+    "lint:fix": "biome check --write"
   },
   "devDependencies": {
+    "@biomejs/biome": "^2.4.13",
     "@tailwindcss/postcss": "^4.2.4",
     "parcel": "^2.16.4",
     "postcss": "^8.5.10",

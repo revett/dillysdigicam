@@ -48,7 +48,8 @@ async function handleFiles(files) {
     photos.push(photo);
 
     const item = document.createElement("div");
-    item.className = "relative aspect-square rounded-lg overflow-hidden cursor-pointer group";
+    item.className =
+      "relative aspect-square rounded-lg overflow-hidden cursor-pointer group";
     item.dataset.index = photos.length - 1;
     item.dataset.selected = "true";
 
@@ -72,7 +73,7 @@ async function handleFiles(files) {
 }
 
 function togglePhoto(item) {
-  const index = parseInt(item.dataset.index);
+  const index = parseInt(item.dataset.index, 10);
   photos[index].selected = !photos[index].selected;
   const selected = photos[index].selected;
   item.dataset.selected = selected;
@@ -107,7 +108,9 @@ toggleAllBtn.addEventListener("click", () => {
   const allSelected = photos.every((p) => p.selected);
   const newState = !allSelected;
 
-  photos.forEach((p) => (p.selected = newState));
+  for (const p of photos) {
+    p.selected = newState;
+  }
   gallery.querySelectorAll("[data-index]").forEach((item) => {
     item.dataset.selected = newState;
     const img = item.querySelector("img");

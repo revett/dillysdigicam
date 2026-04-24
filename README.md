@@ -18,3 +18,10 @@ bun run build
 ```
 
 Outputs to `dist/`.
+
+## Linting
+
+```sh
+bun run lint
+bun run lint:fix
+```
