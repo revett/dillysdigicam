@@ -12,3 +12,7 @@
 - We use Bun
 - We use Tailwind for styling
 - We use Parcel for bundling
+- We use Biome for linting
+- We use GitHub Actions for CI
+- We use GitHub Pages for deployment
+- We use AlpineJS for our framework

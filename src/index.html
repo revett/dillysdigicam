@@ -8,32 +8,59 @@
   <link rel="stylesheet" href="./style.css">
 </head>
 <body class="bg-neutral-950 text-neutral-300 min-h-screen px-6 py-12">
-  <div class="max-w-4xl mx-auto">
+  <div class="max-w-4xl mx-auto" x-data="app">
     <header class="text-center mb-12">
       <h1 class="text-3xl font-bold text-white mb-2">Dilly's Digicam</h1>
       <p class="text-neutral-500">Drop your photos, pick your favourites, and give them that 2000s digicam look.</p>
     </header>
 
     <main>
-      <div id="dropzone" class="relative border-2 border-dashed border-neutral-700 rounded-xl py-16 px-8 text-center cursor-pointer transition-colors hover:border-neutral-500 hover:bg-neutral-900">
+      <!-- Upload -->
+      <div
+        x-show="view === 'upload'"
+        x-on:dragover.prevent="dragging = true"
+        x-on:dragleave.prevent="dragging = false"
+        x-on:drop.prevent="onDrop($event)"
+        :class="dragging && 'border-neutral-500 bg-neutral-900'"
+        class="relative border-2 border-dashed border-neutral-700 rounded-xl py-16 px-8 text-center cursor-pointer transition-colors hover:border-neutral-500 hover:bg-neutral-900"
+      >
         <div class="pointer-events-none">
           <span class="text-5xl block mb-4">📷</span>
           <p class="text-neutral-600">Drop photos here or click to upload</p>
         </div>
-        <input type="file" id="file-input" accept="image/*,.heic,.heif" multiple class="absolute inset-0 opacity-0 cursor-pointer">
+        <input type="file" accept="image/*,.heic,.heif" multiple x-on:change="onFileInput($event)" class="absolute inset-0 opacity-0 cursor-pointer">
       </div>
 
-      <div id="toolbar" class="hidden items-center gap-4 mt-6">
-        <button type="button" id="toggle-all" class="bg-neutral-800 text-neutral-300 text-sm px-4 py-2 rounded-lg hover:bg-neutral-700 transition-colors cursor-pointer"></button>
-        <span id="selection-count" class="text-neutral-500 text-sm flex-1"></span>
-        <button type="button" id="edit-photos" class="bg-white text-neutral-950 text-sm font-semibold px-4 py-2 rounded-lg hover:bg-neutral-200 disabled:opacity-30 disabled:cursor-not-allowed transition-colors cursor-pointer">Edit photos</button>
-      </div>
+      <!-- Gallery -->
+      <template x-if="view === 'gallery'">
+        <div>
+          <div class="flex items-center gap-4 mt-6">
+            <button type="button" x-on:click="toggleAll" class="bg-neutral-800 text-neutral-300 text-sm px-4 py-2 rounded-lg hover:bg-neutral-700 transition-colors cursor-pointer" x-text="allSelected ? 'Deselect all' : 'Select all'"></button>
+            <span class="text-neutral-500 text-sm flex-1" x-text="`${selectedCount} of ${photos.length} selected`"></span>
+            <button type="button" x-on:click="editPhotos" :disabled="selectedCount === 0" class="bg-white text-neutral-950 text-sm font-semibold px-4 py-2 rounded-lg hover:bg-neutral-200 disabled:opacity-30 disabled:cursor-not-allowed transition-colors cursor-pointer">Edit photos</button>
+          </div>
 
-      <div id="gallery" class="grid grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-4 mt-6"></div>
+          <div class="grid grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-4 mt-6">
+            <template x-for="(photo, index) in photos" :key="index">
+              <div
+                x-on:click="togglePhoto(index)"
+                class="relative aspect-square rounded-lg overflow-hidden cursor-pointer"
+              >
+                <img :src="photo.url" alt="" :alt="photo.file.name" class="w-full h-full object-cover block transition-opacity" :class="!photo.selected && 'opacity-35'">
+                <div
+                  class="absolute top-2 right-2 w-7 h-7 rounded-full border-2 flex items-center justify-center text-xs transition-all"
+                  :class="photo.selected ? 'bg-white border-white text-neutral-950' : 'bg-black/30 border-white/50 text-transparent'"
+                >✓</div>
+              </div>
+            </template>
+          </div>
+        </div>
+      </template>
 
-      <div id="processing" class="hidden mt-16 text-center">
+      <!-- Processing -->
+      <div x-show="view === 'processing'" class="mt-16 text-center">
         <div class="flex flex-col items-center gap-6">
-          <p id="processing-summary" class="text-neutral-500"></p>
+          <p class="text-neutral-500" x-text="`${selectedCount} of ${photos.length} photos selected`"></p>
           <div class="w-8 h-8 border-3 border-neutral-700 border-t-white rounded-full animate-spin"></div>
           <p class="text-neutral-600 text-sm">Processing...</p>
         </div>

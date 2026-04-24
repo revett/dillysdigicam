@@ -1,16 +1,5 @@
+import Alpine from "alpinejs";
 import { heicTo } from "heic-to";
-
-const dropzone = document.getElementById("dropzone");
-const fileInput = document.getElementById("file-input");
-const gallery = document.getElementById("gallery");
-const toolbar = document.getElementById("toolbar");
-const toggleAllBtn = document.getElementById("toggle-all");
-const selectionCount = document.getElementById("selection-count");
-const editPhotosBtn = document.getElementById("edit-photos");
-const processing = document.getElementById("processing");
-const processingSummary = document.getElementById("processing-summary");
-
-const photos = [];
 
 function isHeic(file) {
   const name = file.name.toLowerCase();
@@ -33,128 +22,56 @@ async function convertHeic(file) {
   });
 }
 
-async function handleFiles(files) {
-  const imageFiles = Array.from(files).filter(isImageFile);
-  if (imageFiles.length === 0) return;
+Alpine.data("app", () => ({
+  photos: [],
+  view: "upload",
+  dragging: false,
 
-  dropzone.classList.add("hidden");
-  toolbar.classList.remove("hidden");
-  toolbar.classList.add("flex");
+  get selectedCount() {
+    return this.photos.filter((p) => p.selected).length;
+  },
 
-  for (const rawFile of imageFiles) {
-    const file = isHeic(rawFile) ? await convertHeic(rawFile) : rawFile;
-    const url = URL.createObjectURL(file);
-    const photo = { file, url, selected: true };
-    photos.push(photo);
+  get allSelected() {
+    return this.photos.length > 0 && this.selectedCount === this.photos.length;
+  },
 
-    const item = document.createElement("div");
-    item.className =
-      "relative aspect-square rounded-lg overflow-hidden cursor-pointer group";
-    item.dataset.index = photos.length - 1;
-    item.dataset.selected = "true";
+  async handleFiles(files) {
+    const imageFiles = Array.from(files).filter(isImageFile);
+    if (imageFiles.length === 0) return;
 
-    const img = document.createElement("img");
-    img.src = url;
-    img.alt = file.name;
-    img.className = "w-full h-full object-cover block transition-opacity";
+    this.view = "gallery";
 
-    const check = document.createElement("div");
-    check.className =
-      "absolute top-2 right-2 w-7 h-7 rounded-full border-2 flex items-center justify-center text-xs transition-all bg-white border-white text-neutral-950";
-    check.textContent = "✓";
-
-    item.appendChild(img);
-    item.appendChild(check);
-    item.addEventListener("click", () => togglePhoto(item));
-    gallery.appendChild(item);
-  }
-
-  updateToolbar();
-}
-
-function togglePhoto(item) {
-  const index = parseInt(item.dataset.index, 10);
-  photos[index].selected = !photos[index].selected;
-  const selected = photos[index].selected;
-  item.dataset.selected = selected;
-
-  const img = item.querySelector("img");
-  const check = item.querySelector("div");
-
-  img.classList.toggle("opacity-35", !selected);
-
-  if (selected) {
-    check.className =
-      "absolute top-2 right-2 w-7 h-7 rounded-full border-2 flex items-center justify-center text-xs transition-all bg-white border-white text-neutral-950";
-  } else {
-    check.className =
-      "absolute top-2 right-2 w-7 h-7 rounded-full border-2 flex items-center justify-center text-xs transition-all bg-black/30 border-white/50 text-transparent";
-  }
-
-  updateToolbar();
-}
-
-function updateToolbar() {
-  const selectedCount = photos.filter((p) => p.selected).length;
-  const total = photos.length;
-  const allSelected = selectedCount === total;
-
-  toggleAllBtn.textContent = allSelected ? "Deselect all" : "Select all";
-  selectionCount.textContent = `${selectedCount} of ${total} selected`;
-  editPhotosBtn.disabled = selectedCount === 0;
-}
-
-toggleAllBtn.addEventListener("click", () => {
-  const allSelected = photos.every((p) => p.selected);
-  const newState = !allSelected;
-
-  for (const p of photos) {
-    p.selected = newState;
-  }
-  gallery.querySelectorAll("[data-index]").forEach((item) => {
-    item.dataset.selected = newState;
-    const img = item.querySelector("img");
-    const check = item.querySelector("div");
-
-    img.classList.toggle("opacity-35", !newState);
-
-    if (newState) {
-      check.className =
-        "absolute top-2 right-2 w-7 h-7 rounded-full border-2 flex items-center justify-center text-xs transition-all bg-white border-white text-neutral-950";
-    } else {
-      check.className =
-        "absolute top-2 right-2 w-7 h-7 rounded-full border-2 flex items-center justify-center text-xs transition-all bg-black/30 border-white/50 text-transparent";
+    for (const rawFile of imageFiles) {
+      const file = isHeic(rawFile) ? await convertHeic(rawFile) : rawFile;
+      const url = URL.createObjectURL(file);
+      this.photos.push({ file, url, selected: true });
     }
-  });
+  },
 
-  updateToolbar();
-});
+  togglePhoto(index) {
+    this.photos[index].selected = !this.photos[index].selected;
+  },
 
-editPhotosBtn.addEventListener("click", () => {
-  const selected = photos.filter((p) => p.selected);
-  if (selected.length === 0) return;
+  toggleAll() {
+    const newState = !this.allSelected;
+    for (const p of this.photos) {
+      p.selected = newState;
+    }
+  },
 
-  toolbar.classList.add("hidden");
-  gallery.classList.add("hidden");
-  processing.classList.remove("hidden");
-  processingSummary.textContent = `${selected.length} of ${photos.length} photos selected`;
-});
+  editPhotos() {
+    if (this.selectedCount === 0) return;
+    this.view = "processing";
+  },
 
-dropzone.addEventListener("dragover", (e) => {
-  e.preventDefault();
-  dropzone.classList.add("border-neutral-500", "bg-neutral-900");
-});
+  onDrop(e) {
+    this.dragging = false;
+    this.handleFiles(e.dataTransfer.files);
+  },
 
-dropzone.addEventListener("dragleave", () => {
-  dropzone.classList.remove("border-neutral-500", "bg-neutral-900");
-});
+  onFileInput(e) {
+    this.handleFiles(e.target.files);
+  },
+}));
 
-dropzone.addEventListener("drop", (e) => {
-  e.preventDefault();
-  dropzone.classList.remove("border-neutral-500", "bg-neutral-900");
-  handleFiles(e.dataTransfer.files);
-});
-
-fileInput.addEventListener("change", () => {
-  handleFiles(fileInput.files);
-});
+Alpine.start();
