@@ -1,0 +1,17 @@
+{
+  "name": "dillysdigicam",
+  "private": true,
+  "scripts": {
+    "dev": "parcel src/index.html",
+    "build": "parcel build src/index.html --dist-dir dist --public-url ./"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.2.4",
+    "parcel": "^2.16.4",
+    "postcss": "^8.5.10",
+    "tailwindcss": "^4.2.4"
+  },
+  "dependencies": {
+    "heic-to": "^1.4.2"
+  }
+}
