@@ -62,6 +62,7 @@ Alpine.data("app", () => ({
   view: "upload",
   dragging: false,
   processedCount: 0,
+  previewIndex: null,
 
   get selectedCount() {
     return this.photos.filter((p) => p.selected).length;
@@ -205,6 +206,26 @@ Alpine.data("app", () => ({
     triggerDownload(url, zipName);
     URL.revokeObjectURL(url);
     showToast(`Downloaded ${zipName}`);
+  },
+
+  openPreview(index) {
+    this.previewIndex = index;
+  },
+
+  closePreview() {
+    this.previewIndex = null;
+  },
+
+  previewPrev() {
+    if (this.previewIndex > 0) {
+      this.previewIndex--;
+    }
+  },
+
+  previewNext() {
+    if (this.previewIndex < this.results.length - 1) {
+      this.previewIndex++;
+    }
   },
 
   onDrop(e) {

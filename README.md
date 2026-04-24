@@ -1,6 +1,6 @@
 # Dilly's Digicam
 
-Drop your photos, pick your favourites, and give them that 2000s digicam look.
+Drop your photos, pick your favs, and Dilly will help give them that 00s digicam aesthetic.
 
 ## Local Development
 
