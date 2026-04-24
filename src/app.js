@@ -42,9 +42,25 @@ Alpine.data("app", () => ({
     this.view = "gallery";
 
     for (const rawFile of imageFiles) {
-      const file = isHeic(rawFile) ? await convertHeic(rawFile) : rawFile;
-      const url = URL.createObjectURL(file);
-      this.photos.push({ file, url, selected: true });
+      if (isHeic(rawFile)) {
+        const photo = { file: null, url: null, selected: true, loading: true };
+        this.photos.push(photo);
+        const index = this.photos.length - 1;
+
+        convertHeic(rawFile).then((file) => {
+          this.photos[index].file = file;
+          this.photos[index].url = URL.createObjectURL(file);
+          this.photos[index].loading = false;
+        });
+      } else {
+        const url = URL.createObjectURL(rawFile);
+        this.photos.push({
+          file: rawFile,
+          url,
+          selected: true,
+          loading: false,
+        });
+      }
     }
   },
 

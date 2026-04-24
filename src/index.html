@@ -43,14 +43,24 @@
           <div class="grid grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-4 mt-6">
             <template x-for="(photo, index) in photos" :key="index">
               <div
-                x-on:click="togglePhoto(index)"
-                class="relative aspect-square rounded-lg overflow-hidden cursor-pointer"
+                x-on:click="!photo.loading && togglePhoto(index)"
+                class="relative aspect-square rounded-lg overflow-hidden"
+                :class="photo.loading ? 'bg-neutral-900' : 'cursor-pointer'"
               >
-                <img :src="photo.url" alt="" :alt="photo.file.name" class="w-full h-full object-cover block transition-opacity" :class="!photo.selected && 'opacity-35'">
-                <div
-                  class="absolute top-2 right-2 w-7 h-7 rounded-full border-2 flex items-center justify-center text-xs transition-all"
-                  :class="photo.selected ? 'bg-white border-white text-neutral-950' : 'bg-black/30 border-white/50 text-transparent'"
-                >✓</div>
+                <template x-if="photo.loading">
+                  <div class="w-full h-full flex items-center justify-center">
+                    <div class="w-6 h-6 border-2 border-neutral-700 border-t-white rounded-full animate-spin"></div>
+                  </div>
+                </template>
+                <template x-if="!photo.loading">
+                  <div class="w-full h-full">
+                    <img :src="photo.url" alt="" :alt="photo.file?.name" class="w-full h-full object-cover block transition-opacity" :class="!photo.selected && 'opacity-35'">
+                    <div
+                      class="absolute top-2 right-2 w-7 h-7 rounded-full border-2 flex items-center justify-center text-xs transition-all"
+                      :class="photo.selected ? 'bg-white border-white text-neutral-950' : 'bg-black/30 border-white/50 text-transparent'"
+                    >✓</div>
+                  </div>
+                </template>
               </div>
             </template>
           </div>
