@@ -22,7 +22,21 @@
       <input type="file" id="file-input" accept="image/*" multiple>
     </div>
 
+    <div id="toolbar" class="toolbar hidden">
+      <button id="toggle-all" class="btn btn-secondary"></button>
+      <span id="selection-count" class="selection-count"></span>
+      <button id="edit-photos" class="btn btn-primary">Edit photos</button>
+    </div>
+
     <div id="gallery" class="gallery"></div>
+
+    <div id="processing" class="processing hidden">
+      <div class="processing-content">
+        <p id="processing-summary" class="processing-summary"></p>
+        <div class="spinner"></div>
+        <p class="processing-label">Processing...</p>
+      </div>
+    </div>
   </main>
 
   <script src="app.js"></script>
