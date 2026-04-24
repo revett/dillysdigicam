@@ -8,15 +8,15 @@ A client side photo editor that applies a late 90s/2000s disposable camera aesth
 
 1. Drop or select photos (supports JPEG, PNG, HEIC)
 2. Pick the ones you want to edit
-3. Photos are processed with a film stock effect: warm colour grading, lifted shadows, film grain, vignette, soft focus, date stamp, and JPEG compression
+3. Photos are processed with a compact camera flash effect: green/yellow colour cast, flash falloff simulation, fine grain with colour noise, date stamp, and JPEG compression
 4. Download individually or as a zip
 
 ## Technical Details
 
 - Built with Alpine.js, Tailwind CSS, and Parcel
 - HEIC files are converted to JPEG client side using heic-to
-- Image processing uses the Canvas API (colour curves, grain, vignette, date stamp overlay)
-- Output is resized to 1600px on the long edge and exported as JPEG at 78% quality
+- Image processing uses the Canvas API (colour grading, flash falloff, fine grain, date stamp overlay)
+- Output is resized to 1600px on the long edge and exported as JPEG at 72% quality
 - Zip downloads powered by fflate
 
 ## Source

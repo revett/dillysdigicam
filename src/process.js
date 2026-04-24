@@ -1,5 +1,5 @@
 const LONG_EDGE = 1600;
-const JPEG_QUALITY = 0.78;
+const JPEG_QUALITY = 0.72;
 
 function loadImage(url) {
   return new Promise((resolve, reject) => {
@@ -25,24 +25,38 @@ function applyColorGrade(data) {
     let g = data[i + 1];
     let b = data[i + 2];
 
-    // Lift shadows (warm brown-grey, not true black)
-    r = r + (25 - r * 0.1);
-    g = g + (18 - g * 0.08);
-    b = b + (10 - b * 0.06);
+    // S-curve contrast boost (midtone punch)
+    r = 255 * ((r / 255 - 0.5) * 1.2 + 0.5);
+    g = 255 * ((g / 255 - 0.5) * 1.2 + 0.5);
+    b = 255 * ((b / 255 - 0.5) * 1.2 + 0.5);
 
-    // Compress highlights (soft rolloff)
-    if (r > 200) r = 200 + (r - 200) * 0.6;
-    if (g > 200) g = 200 + (g - 200) * 0.6;
-    if (b > 200) b = 200 + (b - 200) * 0.6;
+    // Light shadow lift (keeps some detail in darks)
+    r = r + (12 - r * 0.05);
+    g = g + (12 - g * 0.05);
+    b = b + (12 - b * 0.05);
 
-    // Warm shift
-    r = r + 10;
-    g = g + 3;
-    b = b - 12;
+    // Highlight compression (blown flash look)
+    if (r > 210) r = 210 + (r - 210) * 0.4;
+    if (g > 210) g = 210 + (g - 210) * 0.4;
+    if (b > 210) b = 210 + (b - 210) * 0.4;
 
-    // Desaturate slightly
+    // Strong green/yellow cast (cheap CCD sensor)
+    r = r - 5;
+    g = g + 15;
+    b = b - 10;
+
+    // Warm push in highlights (flash-lit skin goes slightly yellow)
+    const lum = (r + g + b) / 3;
+    if (lum > 160) {
+      const t = (lum - 160) / 95;
+      r = r + 8 * t;
+      g = g + 3 * t;
+      b = b - 6 * t;
+    }
+
+    // Slight desaturation
     const avg = (r + g + b) / 3;
-    const sat = 0.82;
+    const sat = 0.85;
     r = avg + (r - avg) * sat;
     g = avg + (g - avg) * sat;
     b = avg + (b - avg) * sat;
@@ -53,45 +67,51 @@ function applyColorGrade(data) {
   }
 }
 
-function applyGrain(data, width, height) {
-  // 2x2 block noise for chunky, film-like grain
-  for (let y = 0; y < height; y += 2) {
-    for (let x = 0; x < width; x += 2) {
-      const idx = (y * width + x) * 4;
-      const luminance = (data[idx] + data[idx + 1] + data[idx + 2]) / 3;
-      // More grain in shadows, less in highlights
-      const strength = 30 * (1 - (luminance / 255) * 0.5);
-      const noise = (Math.random() - 0.5) * strength;
+function applyGrain(data) {
+  // Fine 1px grain with colour noise in shadows
+  for (let i = 0; i < data.length; i += 4) {
+    const lum = (data[i] + data[i + 1] + data[i + 2]) / 3;
+    const strength = 20 * (1 - (lum / 255) * 0.3);
+    const base = (Math.random() - 0.5) * strength;
 
-      for (let dy = 0; dy < 2 && y + dy < height; dy++) {
-        for (let dx = 0; dx < 2 && x + dx < width; dx++) {
-          const bi = ((y + dy) * width + (x + dx)) * 4;
-          data[bi] = Math.max(0, Math.min(255, data[bi] + noise));
-          data[bi + 1] = Math.max(0, Math.min(255, data[bi + 1] + noise));
-          data[bi + 2] = Math.max(0, Math.min(255, data[bi + 2] + noise));
-        }
-      }
-    }
+    // Per-channel colour speckle in dark areas (CCD noise)
+    const colourNoise = lum < 120 ? 6 : 0;
+
+    data[i] = Math.max(
+      0,
+      Math.min(255, data[i] + base + (Math.random() - 0.5) * colourNoise),
+    );
+    data[i + 1] = Math.max(
+      0,
+      Math.min(255, data[i + 1] + base + (Math.random() - 0.5) * colourNoise),
+    );
+    data[i + 2] = Math.max(
+      0,
+      Math.min(255, data[i + 2] + base + (Math.random() - 0.5) * colourNoise),
+    );
   }
 }
 
-function applyVignette(ctx, width, height) {
+function applyFlashFalloff(ctx, width, height) {
   const cx = width / 2;
   const cy = height / 2;
   const radius = Math.max(width, height) * 0.7;
 
-  const gradient = ctx.createRadialGradient(
-    cx,
-    cy,
-    radius * 0.4,
-    cx,
-    cy,
-    radius,
-  );
-  gradient.addColorStop(0, "rgba(0, 0, 0, 0)");
-  gradient.addColorStop(1, "rgba(0, 0, 0, 0.4)");
+  // Flash hotspot (bright centre wash)
+  const bright = ctx.createRadialGradient(cx, cy, 0, cx, cy, radius * 0.5);
+  bright.addColorStop(0, "rgba(255, 255, 240, 0.18)");
+  bright.addColorStop(0.5, "rgba(255, 255, 240, 0.06)");
+  bright.addColorStop(1, "rgba(255, 255, 240, 0)");
+  ctx.fillStyle = bright;
+  ctx.fillRect(0, 0, width, height);
 
-  ctx.fillStyle = gradient;
+  // Heavy edge/corner darken (flash range falloff)
+  const dark = ctx.createRadialGradient(cx, cy, radius * 0.3, cx, cy, radius);
+  dark.addColorStop(0, "rgba(0, 0, 0, 0)");
+  dark.addColorStop(0.5, "rgba(0, 0, 0, 0.2)");
+  dark.addColorStop(0.8, "rgba(0, 0, 0, 0.5)");
+  dark.addColorStop(1, "rgba(0, 0, 0, 0.75)");
+  ctx.fillStyle = dark;
   ctx.fillRect(0, 0, width, height);
 }
 
@@ -123,19 +143,17 @@ export async function processPhoto(url) {
   canvas.height = height;
   const ctx = canvas.getContext("2d");
 
-  // Slight blur for soft plastic lens feel
-  ctx.filter = "blur(0.4px)";
+  // Sharp draw (no blur; compact cameras had glass lenses)
   ctx.drawImage(img, 0, 0, width, height);
-  ctx.filter = "none";
 
   // Pixel manipulation: colour grade + grain
   const imageData = ctx.getImageData(0, 0, width, height);
   applyColorGrade(imageData.data);
-  applyGrain(imageData.data, width, height);
+  applyGrain(imageData.data);
   ctx.putImageData(imageData, 0, 0);
 
-  // Canvas compositing: vignette + date stamp
-  applyVignette(ctx, width, height);
+  // Canvas compositing: flash falloff + date stamp
+  applyFlashFalloff(ctx, width, height);
   addDateStamp(ctx, width, height);
 
   return new Promise((resolve) => {

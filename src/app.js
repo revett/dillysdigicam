@@ -141,6 +141,7 @@ Alpine.data("app", () => ({
     this.processedCount = 0;
     this.results = [];
 
+    const start = performance.now();
     const selected = this.photos.filter((p) => p.selected);
 
     for (const photo of selected) {
@@ -152,6 +153,13 @@ Alpine.data("app", () => ({
       const name = photo.file.name.replace(/\.[^.]+$/, "_digicam.jpg");
       this.results.push({ blob, url, name });
       this.processedCount++;
+    }
+
+    // Minimum 3s total so processing feels intentional
+    const elapsed = performance.now() - start;
+    const remaining = 3000 - elapsed;
+    if (remaining > 0 && this.view === "processing") {
+      await new Promise((resolve) => setTimeout(resolve, remaining));
     }
 
     if (this.view === "processing") {
