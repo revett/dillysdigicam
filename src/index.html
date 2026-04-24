@@ -37,6 +37,7 @@
           <div class="flex items-center gap-4 mt-6">
             <button type="button" x-on:click="toggleAll" class="bg-neutral-800 text-neutral-300 text-sm px-4 py-2 rounded-lg hover:bg-neutral-700 transition-colors cursor-pointer" x-text="allSelected ? 'Deselect all' : 'Select all'"></button>
             <span class="text-neutral-500 text-sm flex-1" x-text="`${selectedCount} of ${photos.length} selected`"></span>
+            <button type="button" x-on:click="reset" class="bg-neutral-800 text-neutral-300 text-sm px-4 py-2 rounded-lg hover:bg-neutral-700 transition-colors cursor-pointer">Cancel</button>
             <button type="button" x-on:click="editPhotos" :disabled="selectedCount === 0" class="bg-white text-neutral-950 text-sm font-semibold px-4 py-2 rounded-lg hover:bg-neutral-200 disabled:opacity-30 disabled:cursor-not-allowed transition-colors cursor-pointer">Edit photos</button>
           </div>
 
@@ -73,6 +74,7 @@
           <p class="text-neutral-500" x-text="`${selectedCount} of ${photos.length} photos selected`"></p>
           <div class="w-8 h-8 border-3 border-neutral-700 border-t-white rounded-full animate-spin"></div>
           <p class="text-neutral-600 text-sm">Processing...</p>
+          <button type="button" x-on:click="view = 'gallery'" class="bg-neutral-800 text-neutral-300 text-sm px-4 py-2 rounded-lg hover:bg-neutral-700 transition-colors cursor-pointer mt-2">Cancel</button>
         </div>
       </div>
     </main>

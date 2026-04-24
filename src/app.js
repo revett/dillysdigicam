@@ -64,6 +64,14 @@ Alpine.data("app", () => ({
     }
   },
 
+  reset() {
+    for (const p of this.photos) {
+      if (p.url) URL.revokeObjectURL(p.url);
+    }
+    this.photos = [];
+    this.view = "upload";
+  },
+
   togglePhoto(index) {
     this.photos[index].selected = !this.photos[index].selected;
   },
