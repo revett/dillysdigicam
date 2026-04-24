@@ -4,14 +4,15 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dilly's Digicam</title>
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📷</text></svg>">
+  <link rel="icon" href="./dilly.jpg">
   <link rel="stylesheet" href="./style.css">
 </head>
 <body class="bg-neutral-950 text-neutral-300 min-h-screen px-6 py-12 flex items-center justify-center">
   <div class="max-w-4xl w-full" x-data="app">
     <header class="text-center mb-12">
+      <img src="./dilly.jpg" alt="Dilly" class="w-16 h-16 rounded-full object-cover mx-auto mb-4 border-3 border-white">
       <h1 class="text-3xl font-bold text-white mb-2">Dilly's Digicam</h1>
-      <p class="text-neutral-500">Drop your photos, pick your favourites, and give them that 2000s digicam look.</p>
+      <p class="text-neutral-500">Drop your photos, pick your favs, and <strong class="text-neutral-300">Dilly</strong> will help give them that 00s digicam aesthetic.</p>
     </header>
 
     <main>
@@ -24,8 +25,8 @@
         :class="dragging && 'border-neutral-500 bg-neutral-900'"
         class="relative border-2 border-dashed border-neutral-700 rounded-xl py-16 px-8 text-center cursor-pointer transition-colors hover:border-neutral-500 hover:bg-neutral-900"
       >
-        <div class="pointer-events-none">
-          <span class="text-5xl block mb-4">📷</span>
+        <div class="pointer-events-none flex flex-col items-center gap-3">
+          <svg class="w-8 h-8 text-neutral-600" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M7.5 7.5l4.5 4.5m0 0 4.5-4.5M12 12V3"/></svg>
           <p class="text-neutral-600">Drop photos here or click to upload</p>
         </div>
         <input type="file" accept="image/*,.heic,.heif" multiple x-on:change="onFileInput($event)" class="absolute inset-0 opacity-0 cursor-pointer">
@@ -71,8 +72,8 @@
       <!-- Processing -->
       <div x-show="view === 'processing'" class="mt-16 text-center">
         <div class="flex flex-col items-center gap-6">
+          <img src="./dilly.jpg" alt="Dilly" class="w-16 h-16 rounded-full object-cover border-3 border-white animate-pulse">
           <p class="text-neutral-500" x-text="`Processing ${processedCount} of ${selectedCount}...`"></p>
-          <div class="w-8 h-8 border-3 border-neutral-700 border-t-white rounded-full animate-spin"></div>
           <button type="button" x-on:click="cancelProcessing" class="bg-neutral-800 text-neutral-300 text-sm px-4 py-2 rounded-lg hover:bg-neutral-700 transition-colors cursor-pointer">Cancel</button>
         </div>
       </div>
@@ -97,6 +98,10 @@
         </div>
       </template>
     </main>
+
+    <footer class="text-center mt-16 text-neutral-700 text-xs">
+      Built by <strong class="text-neutral-600">Dilly</strong> in Bermondsey (April 2026)
+    </footer>
   </div>
 
   <script type="module" src="./app.js"></script>
